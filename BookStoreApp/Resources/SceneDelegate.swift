@@ -6,7 +6,7 @@
 //
 
 import UIKit
-
+import Firebase
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
@@ -16,9 +16,43 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
         // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
         // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
-        guard let _ = (scene as? UIWindowScene) else { return }
+        guard let windowScene = (scene as? UIWindowScene) else { return }
+        
+        self.setupWindow(with: windowScene)
+        self.checkAuthentication()
     }
-
+    private func setupWindow(with scene: UIScene) {
+            guard let windowScene = (scene as? UIWindowScene) else { return }
+            let window = UIWindow(windowScene: windowScene)
+            self.window = window
+            self.window?.makeKeyAndVisible()
+        }
+        
+        public func checkAuthentication() {
+            if Auth.auth().currentUser == nil {
+                self.goToController(with: LogInViewController())
+            } else {
+                self.goToController(with: MainTabBarViewController())
+            }
+        }
+        
+        private func goToController(with viewController: UIViewController) {
+            DispatchQueue.main.async { [weak self] in
+                UIView.animate(withDuration: 0.25) {
+                    self?.window?.layer.opacity = 0
+                    
+                } completion: { [weak self] _ in
+                    
+                    let nav = UINavigationController(rootViewController: viewController)
+                    nav.modalPresentationStyle = .fullScreen
+                    self?.window?.rootViewController = nav
+                    
+                    UIView.animate(withDuration: 0.25) { [weak self] in
+                        self?.window?.layer.opacity = 1
+                    }
+                }
+            }
+        }
     func sceneDidDisconnect(_ scene: UIScene) {
         // Called as the scene is being released by the system.
         // This occurs shortly after the scene enters the background, or when its session is discarded.
