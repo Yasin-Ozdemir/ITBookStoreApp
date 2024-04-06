@@ -3,6 +3,7 @@
 - MVVM
 - Firebase
 - Protocol Oriented Programming
+- Delegate Pattern
 - Testable Code
 - Theme Changing
 - SDWebImage
